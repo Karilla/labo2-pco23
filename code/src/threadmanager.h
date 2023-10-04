@@ -14,6 +14,7 @@
 
 #include <QObject>
 #include <QString>
+#include <pcosynchro/pcothread.h>
 
 
 /**
@@ -25,7 +26,7 @@ class ThreadManager: public QObject
 {
     Q_OBJECT
 private:
-
+    std::vector<std::unique_ptr<PcoThread>> threads;
 public:
     /**
      * \brief ThreadManager Constructeur simple
