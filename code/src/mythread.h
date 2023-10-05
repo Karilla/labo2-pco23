@@ -4,6 +4,14 @@
 #include <pcosynchro/pcothread.h>
 #include <QString>
 
-void taskHacking(int threadId,QString charset, QString salt, QString hash, unsigned int nbChar);
+void taskHacking(int threadId,
+                 QString charset,
+                 QString salt,
+                 QString hash,
+                 unsigned int nbChars,
+                 unsigned int nbValidChars,
+                 long long unsigned int nbToCompute,
+                 long long unsigned int startNb,
+                 QString& passwordFound);
 
 #endif // MYTHREAD_H
