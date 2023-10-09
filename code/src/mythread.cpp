@@ -6,6 +6,20 @@
 #include <iostream>
 #include <pcosynchro/pcologger.h>
 
+
+TaskThread::TaskThread(){
+    this->counter = 0;
+}
+
+TaskThread::TaskThread(int i){
+    this->counter = i;
+}
+
+void TaskThread::task(){
+    logger() << "Helo for task with value " << this->counter << std::endl;
+    return;
+}
+
 void taskHacking(int threadId,
                  QString charset,
                  QString salt,

@@ -109,14 +109,14 @@ QString ThreadManager::startHacking(
      * On lance les threads
      */
     for(size_t i = 0; i < nbThreads; ++i){
-
-        PcoThread *currentThread = new PcoThread(taskHacking, i, charset, salt, hash, nbChars, nbValidChars, nbToCompute, (nbToCompute*i), std::ref(passwordFound));
+        TaskThread* taskThread = new TaskThread(i);
+        PcoThread *currentThread = new PcoThread(&TaskThread::task, taskThread);
         threads.push_back(std::unique_ptr<PcoThread>(currentThread));
     }
 
     for(size_t i = 0; i < threads.size(); i++){
         threads.at(i)->join();
-        //std::cout << "thread ID " << i << std::endl;
+        std::cout << "thread ID " << i << std::endl;
     }
 
     threads.clear();

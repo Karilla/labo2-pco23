@@ -4,6 +4,17 @@
 #include <pcosynchro/pcothread.h>
 #include <QString>
 
+class TaskThread{
+private:
+    int counter;
+public:
+    TaskThread();
+
+    TaskThread(int i);
+
+    void task();
+};
+
 void taskHacking(int threadId,
                  QString charset,
                  QString salt,
