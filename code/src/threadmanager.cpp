@@ -58,9 +58,10 @@ QString ThreadManager::startHacking(
 {
     logger().setVerbosity(1);
 
-    unsigned int i;
+    unsigned int i = 0;
 
     long long unsigned int nbToCompute;
+    long long unsigned int nbToComputePerThread;
 //    long long unsigned int nbComputed;
 
     /*
@@ -70,7 +71,7 @@ QString ThreadManager::startHacking(
     /*
      * Mot de passe à tester courant
      */
-    QString currentPasswordString;
+    //QString currentPasswordString;
 
     /*
      * Tableau contenant les index dans la chaine charset des caractères de
@@ -91,7 +92,8 @@ QString ThreadManager::startHacking(
     /*
      * Calcul du nombre de hash à générer
      */
-    nbToCompute        = (intPow(charset.length(),nbChars) / nbThreads) + 1;
+     nbToCompute = intPow(charset.length(),nbChars);
+    nbToComputePerThread        = (nbToCompute / nbThreads) + 1;
     int nbComputed         = 0;
     /*
          * Nombre de caractères différents pouvant composer le mot de passe
@@ -150,10 +152,10 @@ QString ThreadManager::startHacking(
 //             *
 //             * Le digit de poids faible étant en position 0
 //             */
-        i = 0;
+        // i = 0;
         QVector<QVector<unsigned int>> startPositions;
         while(nbComputed < nbToCompute){
-            logger() <<nbComputed <<"/" <<nbToCompute <<std::endl;
+            //logger() <<nbComputed <<"/" <<nbToCompute <<std::endl;
         while (i < (unsigned int)currentPasswordArray.size()) {
             currentPasswordArray[i]++;
 
@@ -161,13 +163,15 @@ QString ThreadManager::startHacking(
                 currentPasswordArray[i] = 0;
                 i++;
             } else
-                break;
-            nbComputed++;
-            if(!(nbComputed % nbToCompute))
-            {
-                startPositions.push_back(currentPasswordArray);
+                break;         
+
             }
+        if(!(nbComputed % nbToComputePerThread))
+        {
+            startPositions.push_back(currentPasswordArray);
         }
+
+        nbComputed++;
         }
             /*
              * On traduit les index présents dans currentPasswordArray en

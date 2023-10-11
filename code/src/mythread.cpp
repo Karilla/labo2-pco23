@@ -70,7 +70,7 @@ void TaskThread::taskHacking(
      * Tant qu'on a pas tout essayé...
      */
     while (nbComputed < nbToCompute) {
-        logger() << "Ca compute un max" << std::endl;
+        //logger() << "Ca compute un max" << std::endl;
         if(PcoThread::thisThread()->stopRequested()){
             return;
         }
