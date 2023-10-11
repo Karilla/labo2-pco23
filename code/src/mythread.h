@@ -3,26 +3,30 @@
 
 #include <pcosynchro/pcothread.h>
 #include <QString>
+#include <QVector>
 
 class TaskThread{
 private:
-    int counter;
+
+    QVector<unsigned int> startPassword;
+
+    QString passwordFound;
 public:
-    TaskThread();
+    bool hasFound;
 
-    TaskThread(int i);
+    TaskThread(QVector<unsigned int> startPosition);
 
-    void task();
+    QString getPasswordFound();
+
+    void taskHacking(
+                     QString charset,
+                     QString salt,
+                     QString hash,
+                     unsigned int nbChars,
+                     unsigned int nbValidChars,
+                     long long unsigned int nbToCompute);
 };
 
-void taskHacking(int threadId,
-                 QString charset,
-                 QString salt,
-                 QString hash,
-                 unsigned int nbChars,
-                 unsigned int nbValidChars,
-                 long long unsigned int nbToCompute,
-                 long long unsigned int startNb,
-                 QString& passwordFound);
+
 
 #endif // MYTHREAD_H

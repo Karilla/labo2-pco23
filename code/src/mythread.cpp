@@ -7,28 +7,20 @@
 #include <pcosynchro/pcologger.h>
 
 
-TaskThread::TaskThread(){
-    this->counter = 0;
+TaskThread::TaskThread(QVector<unsigned int> startPosition){
+    this->startPassword = startPosition;
+    this->hasFound = false;
+    this->passwordFound = "";
 }
 
-TaskThread::TaskThread(int i){
-    this->counter = i;
-}
-
-void TaskThread::task(){
-    logger() << "Helo for task with value " << this->counter << std::endl;
-    return;
-}
-
-void taskHacking(int threadId,
+void TaskThread::taskHacking(
                  QString charset,
                  QString salt,
                  QString hash,
                  unsigned int nbChars,
                  unsigned int nbValidChars,
-                 long long unsigned int nbToCompute,
-                 long long unsigned int startNb,
-                 QString& passwordFound)
+                 long long unsigned int nbToCompute
+                 )
 {
     /*logger() << "Bonjour je suis le thread numero " << threadId << std::endl;
     if(PcoThread::thisThread()->stopRequested()){
@@ -69,25 +61,7 @@ void taskHacking(int threadId,
      * de nbChars fois du premier caractère de charset
      */
     currentPasswordString.fill(charset.at(0),nbChars);
-    currentPasswordArray.fill(0,nbChars);
-
-    /*
-     * On récupère le mot de passe à partir duquel le thread doit commencer à
-     * tester
-     */
-    for(unsigned int j = 0; j < startNb; j++){
-        unsigned int i = 0;
-
-        while (i < (unsigned int)currentPasswordArray.size()) {
-            currentPasswordArray[i]++;
-
-            if (currentPasswordArray[i] >= nbValidChars) {
-                currentPasswordArray[i] = 0;
-                i++;
-            } else
-                break;
-        }
-    }
+    currentPasswordArray = this->startPassword;
 
     for (unsigned int i=0;i<nbChars;i++)
         currentPasswordString[i]  = charset.at(currentPasswordArray.at(i));
@@ -97,6 +71,10 @@ void taskHacking(int threadId,
      * Tant qu'on a pas tout essayé...
      */
     while (nbComputed < nbToCompute) {
+        logger() << "Ca compute un max" << std::endl;
+        if(PcoThread::thisThread()->stopRequested()){
+            return;
+        }
         /* On vide les données déjà ajoutées au générateur */
         md5.reset();
         /* On préfixe le mot de passe avec le sel */
@@ -109,7 +87,8 @@ void taskHacking(int threadId,
              * Si on a trouvé, on retourne le mot de passe courant (sans le sel)
              */
         if (currentHash == hash){
-            passwordFound = currentPasswordString;
+            this->passwordFound = currentPasswordString;
+            this->hasFound = true;
         }
 
         /*
@@ -145,4 +124,8 @@ void taskHacking(int threadId,
 
 
     return;
+}
+
+QString TaskThread::getPasswordFound(){
+    return this->passwordFound;
 }

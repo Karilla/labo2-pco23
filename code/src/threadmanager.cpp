@@ -58,7 +58,7 @@ QString ThreadManager::startHacking(
 {
     logger().setVerbosity(1);
 
-//    unsigned int i;
+    unsigned int i;
 
     long long unsigned int nbToCompute;
 //    long long unsigned int nbComputed;
@@ -70,13 +70,13 @@ QString ThreadManager::startHacking(
     /*
      * Mot de passe à tester courant
      */
-//    QString currentPasswordString;
+    QString currentPasswordString;
 
     /*
      * Tableau contenant les index dans la chaine charset des caractères de
      * currentPasswordString
      */
-//    QVector<unsigned int> currentPasswordArray;
+     QVector<unsigned int> currentPasswordArray;
 
     /*
      * Hash du mot de passe à tester courant
@@ -92,9 +92,7 @@ QString ThreadManager::startHacking(
      * Calcul du nombre de hash à générer
      */
     nbToCompute        = (intPow(charset.length(),nbChars) / nbThreads) + 1;
-//    nbComputed         = 0;
-
-
+    int nbComputed         = 0;
     /*
          * Nombre de caractères différents pouvant composer le mot de passe
          */
@@ -105,21 +103,9 @@ QString ThreadManager::startHacking(
      */
     QString passwordFound;
 
-    /*
-     * On lance les threads
-     */
-    for(size_t i = 0; i < nbThreads; ++i){
-        TaskThread* taskThread = new TaskThread(i);
-        PcoThread *currentThread = new PcoThread(&TaskThread::task, taskThread);
-        threads.push_back(std::unique_ptr<PcoThread>(currentThread));
-    }
 
-    for(size_t i = 0; i < threads.size(); i++){
-        threads.at(i)->join();
-        std::cout << "thread ID " << i << std::endl;
-    }
 
-    threads.clear();
+
 
 
     /*
@@ -127,7 +113,7 @@ QString ThreadManager::startHacking(
          * de nbChars fois du premier caractère de charset
          */
 //    currentPasswordString.fill(charset.at(0),nbChars);
-//    currentPasswordArray.fill(0,nbChars);
+      currentPasswordArray.fill(0,nbChars);
 
     /*
          * Tant qu'on a pas tout essayé...
@@ -164,27 +150,63 @@ QString ThreadManager::startHacking(
 //             *
 //             * Le digit de poids faible étant en position 0
 //             */
-//        i = 0;
+        i = 0;
+        QVector<QVector<unsigned int>> startPositions;
+        while(nbComputed < nbToCompute){
+            logger() <<nbComputed <<"/" <<nbToCompute <<std::endl;
+        while (i < (unsigned int)currentPasswordArray.size()) {
+            currentPasswordArray[i]++;
 
-//        while (i < (unsigned int)currentPasswordArray.size()) {
-//            currentPasswordArray[i]++;
-
-//            if (currentPasswordArray[i] >= nbValidChars) {
-//                currentPasswordArray[i] = 0;
-//                i++;
-//            } else
-//                break;
-//        }
-
-//        /*
-//             * On traduit les index présents dans currentPasswordArray en
-//             * caractères
-//             */
+            if (currentPasswordArray[i] >= nbValidChars) {
+                currentPasswordArray[i] = 0;
+                i++;
+            } else
+                break;
+            nbComputed++;
+            if(!(nbComputed % nbToCompute))
+            {
+                startPositions.push_back(currentPasswordArray);
+            }
+        }
+        }
+            /*
+             * On traduit les index présents dans currentPasswordArray en
+             * caractères
+             */
 //        for (i=0;i<nbChars;i++)
 //            currentPasswordString[i]  = charset.at(currentPasswordArray.at(i));
 
-//        nbComputed++;
-//    }
+
+        QVector<TaskThread*> taskThreads;
+        /*
+         * On lance les threads
+         */
+        for(size_t i = 0; i < nbThreads; ++i){
+            TaskThread* taskThread = new TaskThread(startPositions.at(i));
+            taskThreads.push_back(taskThread);
+            PcoThread *currentThread = new PcoThread(&TaskThread::taskHacking, taskThread,charset, salt, hash, nbChars, nbValidChars, nbToCompute);
+            threads.push_back(std::unique_ptr<PcoThread>(currentThread));
+        }
+        bool hasFound = false;
+        while(!hasFound){
+            for(size_t i = 0; i < threads.size(); i++){
+                if(taskThreads.at(i)->hasFound){
+                    hasFound = true;
+                    passwordFound = taskThreads.at(i)->getPasswordFound();
+                    for(size_t j = 0; j < threads.size(); j++){
+                        threads.at(j)->requestStop();
+                    }
+                }
+            }
+        }
+
+
+        for(size_t i = 0; i < threads.size(); i++){
+            threads.at(i)->join();
+            std::cout << "thread ID " << i << std::endl;
+        }
+
+        threads.clear();
 
     if(passwordFound.length()){
         return passwordFound;
