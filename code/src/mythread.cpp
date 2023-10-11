@@ -7,10 +7,9 @@
 #include <pcosynchro/pcologger.h>
 
 
-TaskThread::TaskThread(QVector<unsigned int> startPosition){
-    this->startPassword = startPosition;
-    this->hasFound = false;
-    this->passwordFound = "";
+TaskThread::TaskThread(QVector<unsigned int> startPosition):startPassword(startPosition){
+    hasFound = false;
+    passwordFound = "";
 }
 
 void TaskThread::taskHacking(
@@ -61,7 +60,7 @@ void TaskThread::taskHacking(
      * de nbChars fois du premier caractère de charset
      */
     currentPasswordString.fill(charset.at(0),nbChars);
-    currentPasswordArray = this->startPassword;
+    currentPasswordArray = startPassword;
 
     for (unsigned int i=0;i<nbChars;i++)
         currentPasswordString[i]  = charset.at(currentPasswordArray.at(i));
@@ -87,10 +86,9 @@ void TaskThread::taskHacking(
              * Si on a trouvé, on retourne le mot de passe courant (sans le sel)
              */
         if (currentHash == hash){
-            this->passwordFound = currentPasswordString;
-            this->hasFound = true;
+            passwordFound = currentPasswordString;
+            hasFound = true;
         }
-
         /*
              * On récupère le mot de pass à tester suivant.
              *
@@ -127,5 +125,5 @@ void TaskThread::taskHacking(
 }
 
 QString TaskThread::getPasswordFound(){
-    return this->passwordFound;
+    return passwordFound;
 }
