@@ -11,6 +11,8 @@
 class TaskThread{
 private:
 
+    size_t threadId;
+
     static long long unsigned int totalComputed;
 
     PcoMutex mutex;
@@ -25,7 +27,7 @@ public:
 
     static long long unsigned int getTotalComputed();
 
-    TaskThread(QVector<unsigned int> startPosition);
+    TaskThread(size_t id);
 
     QString getPasswordFound();
 

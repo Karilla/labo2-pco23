@@ -9,7 +9,7 @@
 
 long long unsigned int TaskThread::totalComputed = 0;
 
-TaskThread::TaskThread(QVector<unsigned int> startPosition):startPassword(startPosition){
+TaskThread::TaskThread(size_t id):threadId(id){
     hasFound = false;
     passwordFound = "";
 }
@@ -23,13 +23,10 @@ void TaskThread::taskHacking(
                  long long unsigned int nbToCompute
                  )
 {
-    /*logger() << "Bonjour je suis le thread numero " << threadId << std::endl;
-    if(PcoThread::thisThread()->stopRequested()){
-        return;
-    }*/
-
     unsigned int i;
     long long unsigned int nbComputed;
+
+    long long unsigned startPosition = threadId * nbToCompute;
 
     /*
      * Mot de passe à tester courant
@@ -62,11 +59,28 @@ void TaskThread::taskHacking(
      * de nbChars fois du premier caractère de charset
      */
     currentPasswordString.fill(charset.at(0),nbChars);
-    currentPasswordArray = startPassword;
+    currentPasswordArray.fill(0,nbChars);
 
+
+
+    /**
+        Compute start Position
+      **/
+    long long unsigned remainingChar = startPosition;
+    i = 0;
+    while (i < (unsigned int)currentPasswordArray.size()) {
+        currentPasswordArray[i] += remainingChar;
+        if(currentPasswordArray[i] >= nbValidChars){
+            remainingChar = currentPasswordArray[i]/nbValidChars;
+            currentPasswordArray[i] %= nbValidChars;
+            i++;
+        }
+        else{
+            break;
+        }
+    }
     for (unsigned int i=0;i<nbChars;i++)
         currentPasswordString[i]  = charset.at(currentPasswordArray.at(i));
-
 
     /*
      * Tant qu'on a pas tout essayé...
@@ -120,9 +134,11 @@ void TaskThread::taskHacking(
             currentPasswordString[i]  = charset.at(currentPasswordArray.at(i));
 
         nbComputed++;
+
         mutex.lock();
         totalComputed++;
         mutex.unlock();
+
     }
 
 
