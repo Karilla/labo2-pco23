@@ -7,6 +7,8 @@
 #include <pcosynchro/pcologger.h>
 
 
+long long unsigned int TaskThread::totalComputed = 0;
+
 TaskThread::TaskThread(QVector<unsigned int> startPosition):startPassword(startPosition){
     hasFound = false;
     passwordFound = "";
@@ -118,6 +120,9 @@ void TaskThread::taskHacking(
             currentPasswordString[i]  = charset.at(currentPasswordArray.at(i));
 
         nbComputed++;
+        mutex.lock();
+        totalComputed++;
+        mutex.unlock();
     }
 
 
@@ -126,4 +131,8 @@ void TaskThread::taskHacking(
 
 QString TaskThread::getPasswordFound(){
     return passwordFound;
+}
+
+long long unsigned int TaskThread::getTotalComputed(){
+    return totalComputed;
 }

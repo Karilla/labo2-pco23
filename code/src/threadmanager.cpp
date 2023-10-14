@@ -59,7 +59,7 @@ QString ThreadManager::startHacking(
     logger().setVerbosity(1);
 
     unsigned int i = 0;
-
+    long long unsigned int totalPasswordComputed;
     long long unsigned int nbToCompute;
     long long unsigned int nbToComputePerThread;
 //    long long unsigned int nbComputed;
@@ -94,7 +94,7 @@ QString ThreadManager::startHacking(
      */
      nbToCompute = intPow(charset.length(),nbChars);
     nbToComputePerThread        = (nbToCompute / nbThreads) + 1;
-    int nbComputed         = 0;
+    long long unsigned nbComputed         = 0;
     /*
          * Nombre de caractères différents pouvant composer le mot de passe
          */
@@ -104,8 +104,6 @@ QString ThreadManager::startHacking(
      * String dans laquelle stocker le mot de passe trouvé
      */
     QString passwordFound;
-
-
 
 
 
@@ -139,9 +137,7 @@ QString ThreadManager::startHacking(
 //             * Tous les 1000 hash calculés, on notifie qui veut bien entendre
 //             * de l'état de notre avancement (pour la barre de progression)
 //             */
-//        if ((nbComputed % 1000) == 0) {
-//            incrementPercentComputed((double)1000/nbToCompute);
-//        }
+//
 
 //        /*
 //             * On récupère le mot de pass à tester suivant.
@@ -193,6 +189,9 @@ QString ThreadManager::startHacking(
         }
         bool hasFound = false;
         while(!hasFound){
+            if ((TaskThread::getTotalComputed() % 1000) == 0) {
+                incrementPercentComputed((double)1000/nbToCompute);
+            }
             for(size_t i = 0; i < threads.size(); i++){
                 if(taskThreads.at(i)->hasFound){
                     hasFound = true;
