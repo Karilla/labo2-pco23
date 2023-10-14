@@ -6,22 +6,21 @@
 #include <iostream>
 #include <pcosynchro/pcologger.h>
 
-
 long long unsigned int TaskThread::totalComputed = 0;
 
-TaskThread::TaskThread(size_t id):threadId(id){
+TaskThread::TaskThread(size_t id) : threadId(id)
+{
     hasFound = false;
     passwordFound = "";
 }
 
 void TaskThread::taskHacking(
-                 QString charset,
-                 QString salt,
-                 QString hash,
-                 unsigned int nbChars,
-                 unsigned int nbValidChars,
-                 long long unsigned int nbToCompute
-                 )
+    QString charset,
+    QString salt,
+    QString hash,
+    unsigned int nbChars,
+    unsigned int nbValidChars,
+    long long unsigned int nbToCompute)
 {
     unsigned int i;
     long long unsigned int nbComputed;
@@ -52,42 +51,45 @@ void TaskThread::taskHacking(
     /*
      * Nombre de hash générés
      */
-    nbComputed         = 0;
+    nbComputed = 0;
 
     /*
      * On initialise le premier mot de passe à tester courant en le remplissant
      * de nbChars fois du premier caractère de charset
      */
-    currentPasswordString.fill(charset.at(0),nbChars);
-    currentPasswordArray.fill(0,nbChars);
-
-
+    currentPasswordString.fill(charset.at(0), nbChars);
+    currentPasswordArray.fill(0, nbChars);
 
     /**
         Compute start Position
       **/
     long long unsigned remainingChar = startPosition;
     i = 0;
-    while (i < (unsigned int)currentPasswordArray.size()) {
+    while (i < (unsigned int)currentPasswordArray.size())
+    {
         currentPasswordArray[i] += remainingChar;
-        if(currentPasswordArray[i] >= nbValidChars){
-            remainingChar = currentPasswordArray[i]/nbValidChars;
+        if (currentPasswordArray[i] >= nbValidChars)
+        {
+            remainingChar = currentPasswordArray[i] / nbValidChars;
             currentPasswordArray[i] %= nbValidChars;
             i++;
         }
-        else{
+        else
+        {
             break;
         }
     }
-    for (unsigned int i=0;i<nbChars;i++)
-        currentPasswordString[i]  = charset.at(currentPasswordArray.at(i));
+    for (unsigned int i = 0; i < nbChars; i++)
+        currentPasswordString[i] = charset.at(currentPasswordArray.at(i));
 
     /*
      * Tant qu'on a pas tout essayé...
      */
-    while (nbComputed < nbToCompute) {
-        //logger() << "Ca compute un max" << std::endl;
-        if(PcoThread::thisThread()->stopRequested()){
+    while (nbComputed < nbToCompute)
+    {
+        // logger() << "Ca compute un max" << std::endl;
+        if (PcoThread::thisThread()->stopRequested())
+        {
             return;
         }
         /* On vide les données déjà ajoutées au générateur */
@@ -99,56 +101,60 @@ void TaskThread::taskHacking(
         currentHash = md5.result().toHex();
 
         /*
-             * Si on a trouvé, on retourne le mot de passe courant (sans le sel)
-             */
-        if (currentHash == hash){
+         * Si on a trouvé, on retourne le mot de passe courant (sans le sel)
+         */
+        if (currentHash == hash)
+        {
             passwordFound = currentPasswordString;
             hasFound = true;
         }
         /*
-             * On récupère le mot de pass à tester suivant.
-             *
-             * L'opération se résume à incrémenter currentPasswordArray comme si
-             * chaque élément de ce vecteur représentait un digit d'un nombre en
-             * base nbValidChars.
-             *
-             * Le digit de poids faible étant en position 0
-             */
+         * On récupère le mot de pass à tester suivant.
+         *
+         * L'opération se résume à incrémenter currentPasswordArray comme si
+         * chaque élément de ce vecteur représentait un digit d'un nombre en
+         * base nbValidChars.
+         *
+         * Le digit de poids faible étant en position 0
+         */
         i = 0;
 
-        while (i < (unsigned int)currentPasswordArray.size()) {
+        while (i < (unsigned int)currentPasswordArray.size())
+        {
             currentPasswordArray[i]++;
 
-            if (currentPasswordArray[i] >= nbValidChars) {
+            if (currentPasswordArray[i] >= nbValidChars)
+            {
                 currentPasswordArray[i] = 0;
                 i++;
-            } else
+            }
+            else
                 break;
         }
 
         /*
-             * On traduit les index présents dans currentPasswordArray en
-             * caractères
-             */
-        for (i=0;i<nbChars;i++)
-            currentPasswordString[i]  = charset.at(currentPasswordArray.at(i));
+         * On traduit les index présents dans currentPasswordArray en
+         * caractères
+         */
+        for (i = 0; i < nbChars; i++)
+            currentPasswordString[i] = charset.at(currentPasswordArray.at(i));
 
         nbComputed++;
 
         mutex.lock();
         totalComputed++;
         mutex.unlock();
-
     }
-
 
     return;
 }
 
-QString TaskThread::getPasswordFound(){
+QString TaskThread::getPasswordFound()
+{
     return passwordFound;
 }
 
-long long unsigned int TaskThread::getTotalComputed(){
+long long unsigned int TaskThread::getTotalComputed()
+{
     return totalComputed;
 }

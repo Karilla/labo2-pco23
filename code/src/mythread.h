@@ -6,11 +6,9 @@
 #include <QString>
 #include <QVector>
 
-
-
-class TaskThread{
+class TaskThread
+{
 private:
-
     size_t threadId;
 
     static long long unsigned int totalComputed;
@@ -20,9 +18,8 @@ private:
     QVector<unsigned int> startPassword;
 
     QString passwordFound;
+
 public:
-
-
     bool hasFound;
 
     static long long unsigned int getTotalComputed();
@@ -32,14 +29,12 @@ public:
     QString getPasswordFound();
 
     void taskHacking(
-                     QString charset,
-                     QString salt,
-                     QString hash,
-                     unsigned int nbChars,
-                     unsigned int nbValidChars,
-                     long long unsigned int nbToCompute);
+        QString charset,
+        QString salt,
+        QString hash,
+        unsigned int nbChars,
+        unsigned int nbValidChars,
+        long long unsigned int nbToCompute);
 };
-
-
 
 #endif // MYTHREAD_H

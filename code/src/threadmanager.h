@@ -1,12 +1,12 @@
-    /**
-  \file threadmanager.h
-  \author Yann Thoma
-  \date 24.02.2017
-  \brief Classe pour reverser un hash md5 par brute force.
+/**
+\file threadmanager.h
+\author Yann Thoma. Eva Ray, Benoit Delay
+\date 24.02.2017
+\brief Classe pour reverser un hash md5 par brute force.
 
 
-  Ce fichier contient la définition de la classe ThreadManager, qui permet de
-  reverser un hash md5 par brute force.
+Ce fichier contient la définition de la classe ThreadManager, qui permet de
+reverser un hash md5 par brute force.
 */
 
 #ifndef THREADMANAGER_H
@@ -16,17 +16,17 @@
 #include <QString>
 #include <pcosynchro/pcothread.h>
 
-
 /**
  * \brief The ThreadManager class
  *
  * Cette classe tente de reverser un hash md5 par brute force.
  */
-class ThreadManager: public QObject
+class ThreadManager : public QObject
 {
     Q_OBJECT
 private:
     std::vector<std::unique_ptr<PcoThread>> threads;
+
 public:
     /**
      * \brief ThreadManager Constructeur simple
@@ -47,13 +47,11 @@ public:
      * Cette fonction exécute réellement la recherche.
      */
     QString startHacking(
-            QString charset,
-            QString salt,
-            QString hash,
-            unsigned int nbChars,
-            unsigned int nbThreads
-    );
-
+        QString charset,
+        QString salt,
+        QString hash,
+        unsigned int nbChars,
+        unsigned int nbThreads);
 
     /**
      * \brief incrementPercentComputed fonction qui indique que le pourcentage
