@@ -1,3 +1,12 @@
+/**
+\file mythread.cpp
+\author Eva Ray, Benoit Delay
+\date 15.10.2023
+
+
+Ce fichier contient l'implémentation de la classe TaskThread, qui permet de
+défnir la routine d'une tâche de hacking d'un hash md5.
+*/
 #include "mythread.h"
 #include "threadmanager.h"
 #include <QCryptographicHash>
@@ -6,6 +15,9 @@
 #include <iostream>
 #include <pcosynchro/pcologger.h>
 
+/*
+ * Initilisation de l'attribut statique
+ */
 long long unsigned int TaskThread::totalComputed = 0;
 
 TaskThread::TaskThread(size_t id) : threadId(id)
@@ -60,9 +72,9 @@ void TaskThread::taskHacking(
     currentPasswordString.fill(charset.at(0), nbChars);
     currentPasswordArray.fill(0, nbChars);
 
-    /**
-        Compute start Position
-      **/
+    /*
+     * Calcul du mot de passe de départ
+     */
     long long unsigned remainingChar = startPosition;
     i = 0;
     while (i < (unsigned int)currentPasswordArray.size())
@@ -157,4 +169,8 @@ QString TaskThread::getPasswordFound()
 long long unsigned int TaskThread::getTotalComputed()
 {
     return totalComputed;
+}
+
+bool TaskThread::isPasswordFound(){
+    return hasFound;
 }

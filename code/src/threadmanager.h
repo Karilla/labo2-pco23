@@ -1,6 +1,6 @@
 /**
 \file threadmanager.h
-\author Yann Thoma. Eva Ray, Benoit Delay
+\author Yann Thoma, Eva Ray, Benoit Delay
 \date 24.02.2017
 \brief Classe pour reverser un hash md5 par brute force.
 
@@ -25,6 +25,9 @@ class ThreadManager : public QObject
 {
     Q_OBJECT
 private:
+    /**
+     * \brief threads tableau de pointeurs sur les threads lancés
+     */
     std::vector<std::unique_ptr<PcoThread>> threads;
 
 public:

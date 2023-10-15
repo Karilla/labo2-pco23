@@ -1,8 +1,7 @@
 /**
 \file threadmanager.cpp
-\author Yann Thoma. Eva Ray, Benoit Delay
+\author Yann Thoma, Eva Ray, Benoit Delay
 \date 24.02.2017
-\brief Classe pour reverser un hash md5 par brute force.
 
 
 Ce fichier contient l'implementation de la classe ThreadManager, qui permet de
@@ -74,12 +73,6 @@ QString ThreadManager::startHacking(
     unsigned int nbValidChars;
 
     /*
-     * Tableau contenant les index dans la chaine charset des caractères de
-     * currentPasswordString
-     */
-    QVector<unsigned int> currentPasswordArray;
-
-    /*
      * Calcul du nombre de hash à générer
      */
     nbToCompute = intPow(charset.length(), nbChars);
@@ -95,8 +88,8 @@ QString ThreadManager::startHacking(
      */
     QString passwordFound;
 
-    /**
-     *  Vecteur des threads utilisés
+    /*
+     *  Vecteur des tâches de hacking
      */
     QVector<TaskThread *> taskThreads;
 
@@ -111,7 +104,9 @@ QString ThreadManager::startHacking(
         threads.push_back(std::unique_ptr<PcoThread>(currentThread));
     }
 
-    // Tant que le mot de passe n'est pas trouvé
+    /*
+     * Tant que le mot de passe n'est pas trouvé
+     */
     bool hasFound = false;
     while (!hasFound)
     {
