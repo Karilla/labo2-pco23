@@ -18,11 +18,11 @@ défnir la routine d'une tâche de hacking d'un hash md5.
 /*
  * Initilisation de l'attribut statique
  */
-long long unsigned int TaskThread::totalComputed = 0;
+long long unsigned int TaskThread::totalPasswordsComputed = 0;
 
 TaskThread::TaskThread(size_t id) : threadId(id)
 {
-    hasFound = false;
+    hasFoundPassword = false;
     passwordFound = "";
 }
 
@@ -34,9 +34,15 @@ void TaskThread::taskHacking(
     unsigned int nbValidChars,
     long long unsigned int nbToCompute)
 {
-    unsigned int i;
-    long long unsigned int nbComputed;
+    /*
+     * Variable d'itération
+     */
+    unsigned int i = 0;
 
+    /*
+     * Position dans le dictionnaire du mot de passe à partir duquel on
+     * commence à tester
+     */
     long long unsigned startPosition = threadId * nbToCompute;
 
     /*
@@ -63,7 +69,7 @@ void TaskThread::taskHacking(
     /*
      * Nombre de hash générés
      */
-    nbComputed = 0;
+    long long unsigned nbComputed = 0;
 
     /*
      * On initialise le premier mot de passe à tester courant en le remplissant
@@ -76,7 +82,6 @@ void TaskThread::taskHacking(
      * Calcul du mot de passe de départ
      */
     long long unsigned remainingChar = startPosition;
-    i = 0;
     while (i < (unsigned int)currentPasswordArray.size())
     {
         currentPasswordArray[i] += remainingChar;
@@ -99,7 +104,6 @@ void TaskThread::taskHacking(
      */
     while (nbComputed < nbToCompute)
     {
-        // logger() << "Ca compute un max" << std::endl;
         if (PcoThread::thisThread()->stopRequested())
         {
             return;
@@ -118,7 +122,7 @@ void TaskThread::taskHacking(
         if (currentHash == hash)
         {
             passwordFound = currentPasswordString;
-            hasFound = true;
+            hasFoundPassword = true;
         }
         /*
          * On récupère le mot de pass à tester suivant.
@@ -153,11 +157,16 @@ void TaskThread::taskHacking(
 
         nbComputed++;
 
+        /*
+         * Incrémentation d'attribut statique demandant un vérouillage
+         */
         mutex.lock();
-        totalComputed++;
+        totalPasswordsComputed++;
         mutex.unlock();
     }
-
+    /*
+     * On a calculé le nombre  de hash assigné et on n'a rien trouvé, on s'arrête
+     */
     return;
 }
 
@@ -168,9 +177,9 @@ QString TaskThread::getPasswordFound()
 
 long long unsigned int TaskThread::getTotalComputed()
 {
-    return totalComputed;
+    return totalPasswordsComputed;
 }
 
 bool TaskThread::isPasswordFound(){
-    return hasFound;
+    return hasFoundPassword;
 }

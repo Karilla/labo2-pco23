@@ -107,24 +107,24 @@ QString ThreadManager::startHacking(
     /*
      * Tant que le mot de passe n'est pas trouvé
      */
-    bool hasFound = false;
-    while (!hasFound)
+    bool isPasswordFound = false;
+    while (!isPasswordFound)
     {
         if ((TaskThread::getTotalComputed() % 1000) == 0)
         {
             incrementPercentComputed((double)1000 / nbToCompute);
         }
-        for (size_t i = 0; i < threads.size(); i++)
+        for (const auto &task : taskThreads)
         {
-            if (taskThreads.at(i)->isPasswordFound())
+            if (task->isPasswordFound())
             {
-                hasFound = true;
-                passwordFound = taskThreads.at(i)->getPasswordFound();
+                isPasswordFound = true;
+                passwordFound = task->getPasswordFound();
 
-                // Demande aux autres threads de s'arreter
-                for (size_t j = 0; j < threads.size(); j++)
+                // Demande aux threads de s'arreter
+                for (const auto &thread : threads)
                 {
-                    threads.at(j)->requestStop();
+                    thread->requestStop();
                 }
             }
         }

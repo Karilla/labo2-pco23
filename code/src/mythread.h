@@ -18,15 +18,29 @@ défnir la routine d'une tâche de hacking d'un hash md5.
 class TaskThread
 {
 private:
+    /**
+     * @brief threadId id du thread qui gère la tâche
+     */
     size_t threadId;
 
-    static long long unsigned int totalComputed;
+    /**
+     * @brief totalPasswordsComputed nombre de mots de passe testés, tous
+     * thread confondu
+     */
+    static long long unsigned int totalPasswordsComputed;
 
     PcoMutex mutex;
 
+    /**
+     * @brief passwordFound QString contient le mot de passe en clair
+     * correspondant au hash fourni
+     */
     QString passwordFound;
 
-    bool hasFound;
+    /**
+     * @brief hasFoundPassword true si la tâche a cracké le hash
+     */
+    bool hasFoundPassword;
 
 public:
 
