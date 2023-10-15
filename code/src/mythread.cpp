@@ -165,7 +165,7 @@ void TaskThread::taskHacking(
         mutex.unlock();
     }
     /*
-     * On a calculé le nombre  de hash assigné et on n'a rien trouvé, on s'arrête
+     * On a calculé le nombre de hash assigné et on n'a rien trouvé, on s'arrête
      */
     return;
 }

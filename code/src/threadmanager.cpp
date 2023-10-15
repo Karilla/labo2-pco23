@@ -116,6 +116,7 @@ QString ThreadManager::startHacking(
         }
         for (const auto &task : taskThreads)
         {
+            // Dès que le mot de passe est trouvé
             if (task->isPasswordFound())
             {
                 isPasswordFound = true;
