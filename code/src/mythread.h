@@ -29,7 +29,10 @@ private:
      */
     static long long unsigned int totalPasswordsComputed;
 
-    PcoMutex mutex;
+    /**
+     * @brief mutex verrou partagé
+     */
+    static PcoMutex mutex;
 
     /**
      * @brief passwordFound QString contient le mot de passe en clair

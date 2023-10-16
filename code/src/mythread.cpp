@@ -16,9 +16,10 @@ défnir la routine d'une tâche de hacking d'un hash md5.
 #include <pcosynchro/pcologger.h>
 
 /*
- * Initilisation de l'attribut statique
+ * Initilisation des attributs statiques
  */
 long long unsigned int TaskThread::totalPasswordsComputed = 0;
+PcoMutex TaskThread::mutex;
 
 TaskThread::TaskThread(size_t id) : threadId(id)
 {
