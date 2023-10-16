@@ -84,72 +84,76 @@ mutex.unlock();
 
 ## Tests effectués
 
-### Test 1: Mot de passe de longueur 4, sans sel
+Les tests sont effectués sur la machine virtuelle du REDS, à qui nous avons alloué 4 coeurs. Chaque cas de test a été lancé trois fois et les résultats affichés dans les tableaux ci-dessous sont la moyenne de ces tentatives. Le benchmark brut est disponible dans l'annexe à la fin de ce rapport.
+
+### Test 1: Mot de passe de longueur 4 sans sel
 
 Commençons avec un mot de passe de longueur 4, sans ajouter de sel. Choisissons "abcd" qui est donc plutôt en début de dictionnaire.
 
  nombre threads | temps [ms] 
 | :---: | :---: |
-| 1 | Texte |
-| 2 | Texte |
-| 4 | Texte |
-| 8 | Texte |
+| 1 | 370.7 |
+| 2 | 564 |
+| 4 | 1001 |
+| 8 | 1636.33 |
 
-Faisons un autre test avec le mot de passe "momo" qui est plutôt en milieu de dictionnaire.
-
- nombre threads | temps [ms] 
-| :---: | :---: |
-| 1 | Texte |
-| 2 | Texte |
-| 4 | Texte |
-| 8 | Texte |
-
-Nous constatons que, jusqu'à 4 threads, plus y a de threads, plus le programme est rapide. C'est le comportement que nous espérons! 
-
-Cependant, dès 8 threads, les performances commencent à diminuer. Cela est dû à la configuration de notre VM, à qui nous avons pu allouer X coeurs. Cela implique qu'à partir de 8 threads, il commence à y avoir beaucoup de préemption, ce qui ralentit le programme. C'est un comportement attendu.
-
-On constate aussi que la vitesse d'exécution du programme dépend du placement du mot de passe à trouver dans l'espace des mots de passe possibles. S'il est au début, il est logique que même avec un seul thread, l'exécution soit rapide. S'il est plus loin dans le dictionnaire, le temps d'exécution avec un thread va être plus long car on doit passer par tous les mots de passe intermédiaires. Il y a donc des cas de mots de passe plus favorables que d'autres quant à la rapidité d'exécution de notre programme.
-
-### Test 2: Mot de passe de longueur 4, avec sel
+Faisons un autre test avec le mot de passe "ABCD" qui est plutôt en milieu de dictionnaire.
 
  nombre threads | temps [ms] 
 | :---: | :---: |
-| 1 | Texte |
-| 2 | Texte |
-| 4 | Texte |
-| 8 | Texte |
+| 1 | 3442 |
+| 2 | 4447 |
+| 4 | 3295|
+| 8 | 2952.67 |
 
-### Test 3: Mot de passe de longueur 4, sans sel, sans mutex
-
-Testons le même cas que le test 1 avec "abcd" mais enlevons cette fois-ci le mutex qui protège l'attribut statique *totalComputed* qui permet de gérer correctement la barre de progression.
-
- nombre threads | temps avec mutex [ms] |temps sans mutex [ms] |
-| :---: | :---: | :---: |
-| 1 | Texte | Texte |
-| 2 | Texte | Texte |
-| 4 | Texte | Texte |
-| 8 | Texte | Texte |
-
-On constate que sans le mutex, notre programme est bien plus rapide (presque deux fois plus)! On constate aussi que plus il y a de threads, plus la différence de temps entre la version sans mutex et avec mutex grandit. Cela semble logique car plus il y a de threads, plus la "file d'attente" pour accéder à la variable protégée est grande, puisque plus de threads veulent y accéder en même temps.
-
-Cette observation est intéressante car on peut constater à quel point protéger des variables est coûteux en terme de performances. Il est donc important de comprendre quelle situation implique de devoir absolument protéger une variable. Dans notre cas, si on ne protège pas notre variable, la barre de progression n'a plus aucun sens. On ne peut donc pas échapper au mutex. Bien que cela ralentisse notre programme, la cohérence des données prime.  
-
-### Test 4: Mot de passe de longueur 5, sans sel
-
-Testons avec un mot de passe de longueur 5, sans ajouter de sel.
+Faisons un autre test avec le mot de passe "!!!!" qui est plutôt en fin de dictionnaire.
 
  nombre threads | temps [ms] 
 | :---: | :---: |
-| 1 | Texte |
-| 2 | Texte |
-| 4 | Texte |
+| 1 | 7620.33 |
+| 2 | 4895 |
+| 4 | 3991 |
+| 8 | 2499 |
 
-Nous constatons que le temps d'exécution du programme est bien plus élevé qu'avec un mot de passe de longueur 4. C'est logique car avec une longueur de 4, nous testons au plus $(66)^4 = 18'974'736$ mots de passe, alors qu'avec une longueur de 5, nous testons au plus $(66)^5 = 1'252'332'576 $ mots de passe. En général, la technique de crackage de mots de passe bruteforce est très lente pour de longs mots de passe.
+Nous constatons que la vitesse d'exécution du programme dépend fortement du placement du mot de passe à trouver dans l'espace des mots de passe possibles. En effet, avec un seul thread, le meilleur cas est un mot de passe en début de dictionnaire et le pire cas un mot de passe en fin de dictionnaire.
 
-Ceci dit, nous constatons que plus il y a de threads, plus l'exécution du programme est rapide, ce qui est le comportement attendu.
+Dans le meilleur cas, il est donc logique que, avec notre stratégie de répartition de l'espace entre les threads, ajouter plus de threads ralentisse le programme. En effet, nous perdons du temps en lançant plusieurs threads et en faisant plusieurs fois la mise en place de la tâche de hacking.
 
-<!--Description de chaque test, et information sur le fait qu'il ait passé ou non-->
+Dans le pire cas, il est logique qu'ajouter plus de threads amméliore les performances. En effet, bien que le mot de passe reste en fin d'espace même après séparation entre les threads, chaque thread a bien moins de mots de passe à parcourir. Il atteint donc le dernier plus vite. 
+
+Dans le cas moyen, la situation est moins tranchée. On pourrait penser que plus il y a de threads, plus les performances sont bonnes mais ce n'est pas forcément le cas. Bien que cette tendance se dégage en effet des résultat des tests, cela dépend encore une fois de comment l'espace des mots de passe est réparti entre les threads. Si le mot de passe cherché se retrouve en fin d'un sous-ensemble, alors il sera trouvé moins vite que s'il se retrouve au début. C'est d'ailleurs ce qu'il se passe dans le cas avec deux threads.
+
+Tous les comportements énumérés ci-dessus sont des comportements attendus. Les résultats des tests sont cohérents.
+
+De plus, pendant d'autres tests sur notre VM, nous avons parfois constaté que, dès 8 threads, les performances commencent à diminuer. Cela est dû à la configuration de notre VM, à qui nous avons pu allouer 4 coeurs. Cela implique qu'à partir de 8 threads, il commence à y avoir beaucoup de préemptions, ce qui ralentit le programme. C'est un comportement attendu.
+
+### Test 2: Mot de passe de longueur 4 avec sel
+
+Testons le mot de passe "abdc" avec le sel "xy".
+
+ nombre threads | temps [ms] 
+| :---: | :---: |
+| 1 | 367.67 |
+| 2 | 556.33 |
+| 4 | 892.33 |
+| 8 | 1775 |
+
+Nous constatons que les résultats sont extrêmement similaires à ceux observés pour ce même mot de passe lors du test 1. C'est tout à fait logique puisque, une fois que nous avons précisé le sel utilisé à notre programme, le problème revient en fait à cracker un mot de passe de longueur 4 à nouveau. C'est un comportement attendu.
+
+### Test 3: Mot de passe de longueur 5 sans sel
+
+Testons avec un mot de passe de longueur 5, sans ajouter de sel. Choisissons "abcde" qui se trouve plutôt en début de dictionnaire.
+
+ nombre threads | temps [ms] 
+| :---: | :---: |
+| 1 | 33428.33 |
+| 2 | 48639 |
+| 4 | 90511.33 |
+
+Nous constatons que le temps d'exécution du programme est bien plus élevé qu'avec un mot de passe de longueur 4. C'est logique car avec une longueur de 4, nous testons au plus $(66)^4 = 18'974'736$ mots de passe, alors qu'avec une longueur de 5, nous testons au plus $(66)^5 = 1'252'332'576 $ mots de passe. En général, la technique de crackage de mots de passe bruteforce est très lente pour de longs mots de passe. Notre programme n'est donc pas adapté pour cracker un long mot de passe.
+
+Ceci dit, nous constatons que plus il y a de threads, plus l'exécution du programme est lente, ce qui est le comportement attendu pour un mot de passe se trouvant au début du dictionnaire.
 
 ## Conclusion
 
-Nous avons pu constater 
+Nous avons pu constater que le temps que met notre programme à cracker un mot de passe dépend fortement de la position de celui-ci dans le dictionnaire. Ceci étant dit, notre programme se comporte de façon attendue en fonction de cette position. Nous avons aussi observé qu'ajouter un sel n'impactait pas les performances du programme et que notre programme était lent pour cracker de longs mots de passe. Pour finir, nous pouvons dire que nous avons réussi à amméliorer de manière significative les performances de l'application de base.
