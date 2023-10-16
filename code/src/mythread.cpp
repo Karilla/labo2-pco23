@@ -15,16 +15,11 @@ défnir la routine d'une tâche de hacking d'un hash md5.
 #include <iostream>
 #include <pcosynchro/pcologger.h>
 
-/*
- * Initilisation des attributs statiques
- */
-long long unsigned int TaskThread::totalPasswordsComputed = 0;
-PcoMutex TaskThread::mutex;
-
 TaskThread::TaskThread(size_t id) : threadId(id)
 {
     hasFoundPassword = false;
     passwordFound = "";
+    nbHashComputed = 0;
 }
 
 void TaskThread::taskHacking(
@@ -68,11 +63,6 @@ void TaskThread::taskHacking(
     QCryptographicHash md5(QCryptographicHash::Md5);
 
     /*
-     * Nombre de hash générés
-     */
-    long long unsigned nbComputed = 0;
-
-    /*
      * On initialise le premier mot de passe à tester courant en le remplissant
      * de nbChars fois du premier caractère de charset
      */
@@ -103,7 +93,7 @@ void TaskThread::taskHacking(
     /*
      * Tant qu'on a pas tout essayé...
      */
-    while (nbComputed < nbToCompute)
+    while (nbHashComputed < nbToCompute)
     {
         if (PcoThread::thisThread()->stopRequested())
         {
@@ -126,14 +116,7 @@ void TaskThread::taskHacking(
             hasFoundPassword = true;
         }
 
-        nbComputed++;
-
-        /*
-         * Incrémentation d'attribut statique demandant un vérouillage
-         */
-        mutex.lock();
-        totalPasswordsComputed++;
-        mutex.unlock();
+        nbHashComputed++;
 
         /*
          * On récupère le mot de pass à tester suivant.
@@ -178,11 +161,10 @@ QString TaskThread::getPasswordFound()
     return passwordFound;
 }
 
-long long unsigned int TaskThread::getTotalComputed()
-{
-    return totalPasswordsComputed;
-}
-
 bool TaskThread::isPasswordFound(){
     return hasFoundPassword;
+}
+
+long long unsigned TaskThread::getNbHashComputed(){
+    return nbHashComputed;
 }

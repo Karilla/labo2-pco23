@@ -24,15 +24,9 @@ private:
     size_t threadId;
 
     /**
-     * @brief totalPasswordsComputed nombre de mots de passe testés, tous
-     * thread confondu
+     * Nombre de hash générés
      */
-    static long long unsigned int totalPasswordsComputed;
-
-    /**
-     * @brief mutex verrou partagé
-     */
-    static PcoMutex mutex;
+    long long unsigned nbHashComputed;
 
     /**
      * @brief passwordFound QString contient le mot de passe en clair
@@ -54,16 +48,16 @@ public:
     TaskThread(size_t id);
 
     /**
-     * @brief permet de récupérer le nombre totale de mots de passe testés depuis l'extérieur de la classe
-     * @return nombre total de mots de passe testés
-     */
-    static long long unsigned int getTotalComputed();
-
-    /**
      * @brief permet de récupérer le mot de passe trouvé depuis l'extérieur de la classe
      * @return le mot de passe trouvé
      */
     QString getPasswordFound();
+
+    /**
+     * @brief permet de récupérer le nombre de hash calculés dans la tâche
+     * @return le nombre de hash calculés
+     */
+    long long unsigned getNbHashComputed();
 
     /**
      * @brief permet de savoir si le hash a été cracké

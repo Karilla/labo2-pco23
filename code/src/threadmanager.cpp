@@ -108,12 +108,15 @@ QString ThreadManager::startHacking(
      * Tant que le mot de passe n'est pas trouvé
      */
     bool isPasswordFound = false;
+    //long long unsigned onePercent = nbToCompute * 0.01;
+    long long unsigned nbTotalHashComputed = 0;
     while (!isPasswordFound)
     {
-        if ((TaskThread::getTotalComputed() % 1000) == 0)
+        if ((nbTotalHashComputed % 1000) == 0)
         {
             incrementPercentComputed((double)1000 / nbToCompute);
         }
+        nbTotalHashComputed = 0;
         for (const auto &task : taskThreads)
         {
             // Dès que le mot de passe est trouvé
@@ -128,6 +131,7 @@ QString ThreadManager::startHacking(
                     thread->requestStop();
                 }
             }
+            nbTotalHashComputed += task->getNbHashComputed();
         }
     }
 
