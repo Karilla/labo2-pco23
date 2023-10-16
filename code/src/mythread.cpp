@@ -125,6 +125,16 @@ void TaskThread::taskHacking(
             passwordFound = currentPasswordString;
             hasFoundPassword = true;
         }
+
+        nbComputed++;
+
+        /*
+         * Incrémentation d'attribut statique demandant un vérouillage
+         */
+        mutex.lock();
+        totalPasswordsComputed++;
+        mutex.unlock();
+
         /*
          * On récupère le mot de pass à tester suivant.
          *
@@ -156,14 +166,6 @@ void TaskThread::taskHacking(
         for (i = 0; i < nbChars; i++)
             currentPasswordString[i] = charset.at(currentPasswordArray.at(i));
 
-        nbComputed++;
-
-        /*
-         * Incrémentation d'attribut statique demandant un vérouillage
-         */
-        mutex.lock();
-        totalPasswordsComputed++;
-        mutex.unlock();
     }
     /*
      * On a calculé le nombre de hash assigné et on n'a rien trouvé, on s'arrête
