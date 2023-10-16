@@ -100,16 +100,18 @@ QString ThreadManager::startHacking(
     {
         TaskThread *taskThread = new TaskThread(i);
         taskThreads.push_back(taskThread);
-        PcoThread *currentThread = new PcoThread(&TaskThread::taskHacking, taskThread, charset, salt, hash, nbChars, nbValidChars, nbToComputePerThread);
+        PcoThread *currentThread = new PcoThread(&TaskThread::taskHacking,
+                                                 taskThread, charset, salt,
+                                                 hash, nbChars, nbValidChars,
+                                                 nbToComputePerThread);
         threads.push_back(std::unique_ptr<PcoThread>(currentThread));
     }
 
+    bool isPasswordFound = false;
+    long long unsigned nbTotalHashComputed = 0;
     /*
      * Tant que le mot de passe n'est pas trouvé
      */
-    bool isPasswordFound = false;
-    //long long unsigned onePercent = nbToCompute * 0.01;
-    long long unsigned nbTotalHashComputed = 0;
     while (!isPasswordFound)
     {
         if ((nbTotalHashComputed % 1000) == 0)
@@ -142,6 +144,9 @@ QString ThreadManager::startHacking(
 
     threads.clear();
 
+    /*
+     * Si le mot de passe a été trouvé
+     */
     if (passwordFound.length())
     {
         return passwordFound;

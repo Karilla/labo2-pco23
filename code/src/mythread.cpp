@@ -1,7 +1,7 @@
 /**
 \file mythread.cpp
 \author Eva Ray, Benoit Delay
-\date 15.10.2023
+\date 04.10.2023
 
 
 Ce fichier contient l'implémentation de la classe TaskThread, qui permet de
@@ -36,7 +36,7 @@ void TaskThread::taskHacking(
     unsigned int i = 0;
 
     /*
-     * Position dans le dictionnaire du mot de passe à partir duquel on
+     * Position dans le dictionnaire du mot de passe à partir duquel on 
      * commence à tester
      */
     long long unsigned startPosition = threadId * nbToCompute;
@@ -148,7 +148,6 @@ void TaskThread::taskHacking(
          */
         for (i = 0; i < nbChars; i++)
             currentPasswordString[i] = charset.at(currentPasswordArray.at(i));
-
     }
     /*
      * On a calculé le nombre de hash assigné et on n'a rien trouvé, on s'arrête
@@ -161,10 +160,12 @@ QString TaskThread::getPasswordFound()
     return passwordFound;
 }
 
-bool TaskThread::isPasswordFound(){
+bool TaskThread::isPasswordFound()
+{
     return hasFoundPassword;
 }
 
-long long unsigned TaskThread::getNbHashComputed(){
+long long unsigned TaskThread::getNbHashComputed()
+{
     return nbHashComputed;
 }

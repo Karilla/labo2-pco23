@@ -2,7 +2,7 @@
 /**
 \file mythread.h
 \author Eva Ray, Benoit Delay
-\date 15.10.2023
+\date 04.10.2023
 
 
 Ce fichier contient la définition de la classe TaskThread, qui permet de
@@ -24,12 +24,12 @@ private:
     size_t threadId;
 
     /**
-     * Nombre de hash générés
+     * @brief Nombre de hash générés
      */
     long long unsigned nbHashComputed;
 
     /**
-     * @brief passwordFound QString contient le mot de passe en clair
+     * @brief passwordFound QString contient le mot de passe en clair 
      * correspondant au hash fourni
      */
     QString passwordFound;
@@ -40,7 +40,6 @@ private:
     bool hasFoundPassword;
 
 public:
-
     /**
      * @brief TaskThread constructeur simple
      * @param id du thread
@@ -48,7 +47,8 @@ public:
     TaskThread(size_t id);
 
     /**
-     * @brief permet de récupérer le mot de passe trouvé depuis l'extérieur de la classe
+     * @brief permet de récupérer le mot de passe trouvé depuis l'extérieur de 
+     * la classe
      * @return le mot de passe trouvé
      */
     QString getPasswordFound();
@@ -73,7 +73,7 @@ public:
      * @param hash QString hash à reverser
      * @param nbChars taille du mot de passe
      * @param nbValidChars nombre de caractères présents dans le charset
-     * @param nbToCompute nombre de hash qu'une certaine tâche doit calculer
+     * @param nbToCompute nombre de hash qu'un certain thread doit calculer
      */
     void taskHacking(
         QString charset,
