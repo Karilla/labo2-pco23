@@ -101,15 +101,22 @@ Faisons un autre test avec le mot de passe "!!!!" qui est plutôt en fin de dict
 
 Nous constatons que la vitesse d'exécution du programme dépend fortement du placement du mot de passe à trouver dans l'espace des mots de passe possibles. En effet, avec un seul thread, le meilleur cas est un mot de passe en début de dictionnaire et le pire cas un mot de passe en fin de dictionnaire.
 
-Dans le meilleur cas, il est donc logique que, avec notre stratégie de répartition de l'espace entre les threads, ajouter plus de threads ralentisse le programme. En effet, nous perdons du temps en lançant plusieurs threads et en faisant plusieurs fois la mise en place de la routine de hacking.
+Dans le meilleur cas pour un thead, il est donc logique que, avec notre stratégie de répartition de l'espace entre les threads, ajouter plus de threads ralentisse le programme. En effet, nous perdons du temps en lançant plusieurs threads et en faisant plusieurs fois la mise en place de la routine de hacking.
 
-Dans le pire cas, il est logique qu'ajouter plus de threads amméliore les performances. En effet, bien que le mot de passe reste en fin d'espace même après séparation entre les threads, chaque thread a bien moins de mots de passe à parcourir. Il atteint donc le dernier plus vite. 
+Dans le pire cas pour un thread, il est logique qu'ajouter plus de threads amméliore les performances. En effet, bien que le mot de passe reste en fin d'espace même après séparation entre les threads, chaque thread a bien moins de mots de passe à parcourir. Il atteint donc le dernier plus vite. 
 
-Dans le cas moyen, la situation est moins tranchée. On pourrait penser que plus il y a de threads, plus les performances sont bonnes mais ce n'est pas forcément le cas. Bien que cette tendance se dégage en effet des résultat des tests, cela dépend encore une fois de comment l'espace des mots de passe est réparti entre les threads. Si le mot de passe cherché se retrouve en fin d'un sous-ensemble, alors il sera trouvé moins vite que s'il se retrouve au début. C'est d'ailleurs ce qu'il se passe dans le cas avec deux threads.
+Dans le cas moyen pour un thread, on observe aussi une ammélioration des performances en ajoutant des threads, dans la pupart des cas. Cependant, cela dépend encore une fois de comment l'espace des mots de passe est réparti entre les threads. Si le mot de passe cherché se retrouve en fin d'un sous-ensemble, alors il sera trouvé moins vite que s'il se retrouve au début. C'est d'ailleurs ce qu'il se passe dans le cas avec deux threads.
+
+En conclusion, nous avons pu amméliorer de manière significative les performances dans la pire cas, amméliorer légèrement les performances du cas moyen. Ceci se fait au prix de petites pertes de performance dans le meilleur cas, qui reste toutefois très correcte.
 
 Tous les comportements énumérés ci-dessus sont des comportements attendus. Les résultats des tests sont cohérents.
 
 De plus, lors d'autres essais sur notre VM, nous avons parfois constaté que, dès 8 threads, les performances commencent à diminuer. Cela est dû à la configuration de notre VM, à qui nous avons pu allouer 4 coeurs. Cela implique qu'à partir de 8 threads, il commence à y avoir beaucoup de préemptions, ce qui ralentit le programme. C'est un comportement attendu.
+
+#### Remarque
+Notre perte de performance dans certains cas est due au fait que nous devons calculer le mot de passe à partir duquel un thread doit commencer à tester. Cependant, en coupant l'espace des mots de passe comme nous le faisons, nous augmentons la performance moyenne et évitons des cas très mauvais. Cette méthide privilégie cela plutôt que d'assurer que "plus de threads impliquent de meilleures performances" dans le meilleur cas.
+
+Nous aurions pu couper l'espace différemment, par exemple en commençant depuis le début du dictionnaire et en répartissant petit à petit le travail entre les threads. Cela nous aurait évité de devoir calculer un mot de passe de départ. 
 
 ### Test 2: Mot de passe de longueur 4 avec sel
 
@@ -141,13 +148,13 @@ Ceci dit, nous constatons que plus il y a de threads, plus l'exécution du progr
 
 ### Test 4: Barre de progression
 
-- La barre se remplit de manière cohérente en fonction compte du nombre de threads. Par exemple, lors du cracking du mot de passe "abcd" du test 1, la barre de progression est entre 4 et 5 pourcent lorsque le mot de passe est trouvé avec un thread et entre 8 et 9 pourcent avec deux threads. C'est le comportement attendu puisqu'on a eu le temps de tester deux fois plus de mots de passe. 
+- La barre se remplit de manière cohérente en fonction compte du nombre de threads. Par exemple, lors du cracking du mot de passe "abcd" du test 1, la barre de progression est entre 4 et 5 pourcent lorsque le mot de passe est trouvé avec un thread et entre 8 et 9 pourcent avec deux threads. C'est le comportement attendu puisqu'on a testé deux fois plus de mots de passe. 
 - La barre affiche bien 100% si aucun mot de passe n'a été trouvé.
 - La barre se remplit bien de manière linéaire et régulière.
 
 ## Conclusion
 
-Nous avons pu constater que le temps que met notre programme à cracker un mot de passe dépend fortement de la position de celui-ci dans le dictionnaire. Ceci étant dit, notre programme réagit comme attendu en fonction de cette position. Nous avons également observé que l'ajout d'un sel n'affectait pas les performances du programme, et que notre programme était peu efficace pour carcker des mots de passe longs. Pour finir, nous pouvons dire que nous avons réussi à amméliorer de manière significative les performances de l'application de base.
+Nous avons pu constater que le temps que met notre programme à cracker un mot de passe dépend fortement de la position de celui-ci dans le dictionnaire. Ceci étant dit, notre programme réagit comme attendu en fonction de cette position. Nous avons également observé que l'ajout d'un sel n'affectait pas les performances du programme, et que notre programme était peu efficace pour carcker des mots de passe longs. Pour finir, nous pouvons dire que nous avons réussi à amméliorer les performances de l'application de base.
 
 ## Annexe
 
