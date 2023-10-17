@@ -110,11 +110,11 @@ Faisons un autre test avec le mot de passe "!!!!" qui est plutôt en fin de dict
 
 Nous constatons que la vitesse d'exécution du programme dépend fortement du placement du mot de passe à trouver dans l'espace des mots de passe possibles. En effet, avec un seul thread, le meilleur cas est un mot de passe en début de dictionnaire et le pire cas un mot de passe en fin de dictionnaire.
 
-Dans le meilleur cas pour un thead, nous perdons du temps en lançant plusieurs threads. Cela est probablement dû au temps de création, de coordination, de changements de contexte dû aux préemptions et de gestion des threads. Il y a problablement une piste d'amélioration de ce côté-là. 
+Dans le meilleur cas, nous perdons du temps en lançant plusieurs threads. Cela est probablement dû au temps de création, de coordination, de changements de contexte dû aux préemptions et de gestion des threads. Il y a problablement une piste d'amélioration de ce côté-là. 
 
-Dans le pire cas pour un thread, il est logique qu'ajouter plus de threads améliore les performances. En effet, bien que le mot de passe reste en fin d'espace même après séparation entre les threads, chaque thread a bien moins de mots de passe à parcourir. Il atteint donc le dernier plus vite. 
+Dans le pire cas , il est logique qu'ajouter plus de threads améliore les performances. En effet, bien que le mot de passe reste en fin d'espace même après séparation entre les threads, chaque thread a bien moins de mots de passe à parcourir. Il atteint donc le dernier plus vite. 
 
-Dans le cas moyen pour un thread, on observe aussi une amélioration des performances en ajoutant des threads, dans la pupart des cas. Cependant, cela dépend encore une fois de comment l'espace des mots de passe est réparti entre les threads. Si le mot de passe cherché se retrouve en fin d'un sous-ensemble, alors il sera trouvé moins vite que s'il se retrouve au début. C'est d'ailleurs ce qu'il se passe dans le cas avec deux threads.
+Dans le cas moyen , on observe aussi une amélioration des performances en ajoutant des threads, dans la pupart des cas. Cependant, cela dépend encore une fois de comment l'espace des mots de passe est réparti entre les threads. Si le mot de passe cherché se retrouve en fin d'un sous-ensemble, alors il sera trouvé moins vite que s'il se retrouve au début. C'est d'ailleurs ce qu'il se passe dans le cas avec deux threads.
 
 En conclusion, nous avons pu amméliorer de manière significative les performances dans la pire cas, améliorer légèrement les performances du cas moyen. Ceci se fait au prix de petites pertes de performance dans le meilleur cas, qui reste toutefois très correcte.
 
