@@ -68,7 +68,16 @@ if ((nbTotalHashComputed % 1000) == 0) {
 
 ## Tests effectués
 
-Les tests sont effectués sur la machine virtuelle du REDS, à qui nous avons alloué 4 coeurs. Chaque cas de test a été lancé trois fois et les résultats affichés dans les tableaux ci-dessous sont la moyenne de ces tentatives. Les résultats bruts des tests sont disponibles dans l'annexe à la fin de ce rapport.
+Les tests sont effectués sur la machine virtuelle du REDS, à qui nous avons alloué 4 coeurs. Chaque cas de test a été lancé trois fois et les résultats affichés dans les tableaux ci-dessous sont la moyenne de ces tentatives. Les résultats bruts des tests sont disponibles dans l'annexe à la fin de ce rapport. Il est bon de noter que le résultat des tests dépendent de la machine sur lesquels ils sont lancés mais il nous permettent quand même de dégager une tendance globale.
+
+Pour préparer notre terrain de tests, nous avons d'abord lancé le cracking de "aaaa" qui est le premier mot de passe du dictionnaire. Nous constatons que le warm up time est de 0 à 2 [ms]. Ce n'est donc pas à cette étape que nous perdons en temps d'exécution.
+
+ nombre threads | temps [ms] 
+| :---: | :---: |
+| 1 | 0.67 |
+| 2 | 1.33 |
+| 4 | 1.67 |
+| 8 | 1.33 |
 
 ### Test 1: Mot de passe de longueur 4 sans sel
 
@@ -101,7 +110,7 @@ Faisons un autre test avec le mot de passe "!!!!" qui est plutôt en fin de dict
 
 Nous constatons que la vitesse d'exécution du programme dépend fortement du placement du mot de passe à trouver dans l'espace des mots de passe possibles. En effet, avec un seul thread, le meilleur cas est un mot de passe en début de dictionnaire et le pire cas un mot de passe en fin de dictionnaire.
 
-Dans le meilleur cas pour un thead, il est donc logique que, avec notre stratégie de répartition de l'espace entre les threads, ajouter plus de threads ralentisse le programme. En effet, nous perdons du temps en lançant plusieurs threads et en faisant plusieurs fois la mise en place de la routine de hacking.
+Dans le meilleur cas pour un thead, nous perdons du temps en lançant plusieurs threads. Cela est probablement dû au temps de création, de coordination, de changements de contexte dû aux préemptions et de gestion des threads. Il y a problablement une piste d'ammélioration de ce côté-là. 
 
 Dans le pire cas pour un thread, il est logique qu'ajouter plus de threads amméliore les performances. En effet, bien que le mot de passe reste en fin d'espace même après séparation entre les threads, chaque thread a bien moins de mots de passe à parcourir. Il atteint donc le dernier plus vite. 
 
@@ -111,12 +120,7 @@ En conclusion, nous avons pu amméliorer de manière significative les performan
 
 Tous les comportements énumérés ci-dessus sont des comportements attendus. Les résultats des tests sont cohérents.
 
-De plus, lors d'autres essais sur notre VM, nous avons parfois constaté que, dès 8 threads, les performances commencent à diminuer. Cela est dû à la configuration de notre VM, à qui nous avons pu allouer 4 coeurs. Cela implique qu'à partir de 8 threads, il commence à y avoir beaucoup de préemptions, ce qui ralentit le programme. C'est un comportement attendu.
-
-#### Remarque
-Notre perte de performance dans certains cas est due au fait que nous devons calculer le mot de passe à partir duquel un thread doit commencer à tester. Cependant, en coupant l'espace des mots de passe comme nous le faisons, nous augmentons la performance moyenne et évitons des cas très mauvais. Cette méthide privilégie cela plutôt que d'assurer que "plus de threads impliquent de meilleures performances" dans le meilleur cas.
-
-Nous aurions pu couper l'espace différemment, par exemple en commençant depuis le début du dictionnaire et en répartissant petit à petit le travail entre les threads. Cela nous aurait évité de devoir calculer un mot de passe de départ. 
+De plus, lors d'autres essais sur notre VM, nous avons parfois constaté que, dès 4 threads, les performances commencent à diminuer. Cela est dû à la configuration de notre VM, à qui nous avons pu allouer 4 coeurs. Cela implique qu'à partir de 4 threads, il commence à y avoir beaucoup de préemptions, ce qui ralentit le programme. De manière générale, on constate que les performances plafonnent lorsqu'on commence à ajouter plus de threads que le nombre disponible sur la machine. C'est un comportement attendu.
 
 ### Test 2: Mot de passe de longueur 4 avec sel
 
@@ -143,7 +147,7 @@ Testons avec un mot de passe de longueur 5, sans ajouter de sel. Choisissons "ab
 
 Nous constatons que le temps d'exécution du programme est bien plus élevé qu'avec un mot de passe de longueur 4. C'est logique car avec une longueur de 4, nous testons au plus $(66)^4 = 18'974'736$ mots de passe, alors qu'avec une longueur de 5, nous testons au plus $(66)^5 = 1'252'332'576 $ mots de passe. En général, la technique de crackage de mots de passe bruteforce est très lente pour de longs mots de passe, ces résultats ne sont donc pas étonnants. 
 
-Ceci dit, nous constatons que plus il y a de threads, plus l'exécution du programme est lente, ce qui est le comportement attendu pour un mot de passe se trouvant au début du dictionnaire.
+Ceci dit, nous constatons que plus il y a de threads, plus l'exécution du programme est lente, ce qui est le même comportement que pour le test 1 et donc cohérent pour notre programme.
 
 
 ### Test 4: Barre de progression
@@ -154,8 +158,12 @@ Ceci dit, nous constatons que plus il y a de threads, plus l'exécution du progr
 
 ## Conclusion
 
-Nous avons pu constater que le temps que met notre programme à cracker un mot de passe dépend fortement de la position de celui-ci dans le dictionnaire. Ceci étant dit, notre programme réagit comme attendu en fonction de cette position. Nous avons également observé que l'ajout d'un sel n'affectait pas les performances du programme, et que notre programme était peu efficace pour carcker des mots de passe longs. Pour finir, nous pouvons dire que nous avons réussi à amméliorer les performances de l'application de base.
+Nous avons pu constater que le temps que met notre programme à cracker un mot de passe dépend fortement de la position de celui-ci dans le dictionnaire. Ceci étant dit, notre programme réagit comme attendu en fonction de cette position. Nous avons également observé que l'ajout d'un sel n'affectait pas les performances du programme, et que notre programme était peu efficace pour carcker des mots de passe longs. 
+
+De manière générale, nous avons pu constater que donner plus de threads à un programme n'implique pas toujours que ses performances s'amméliorent. En effet, cela dépend fortement des capacités de la machine sur lequel le programme tourne, de la préemption des threads et des algorithmes mis en place. 
+
+Enfin, nous pouvons dire que nous avons réussi à amméliorer les performances de l'application de base.
 
 ## Annexe
 
-![benchmark test](benchmark.png)
+![benchmark test](benchmark2.png)
